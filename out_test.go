@@ -65,7 +65,7 @@ func TestAll(t *testing.T) {
 	assert.Contains(t, out, colored(message, "cyan"))
 
 	// without DEBUG
-	os.Unsetenv("DEBUG")
+	os.Setenv("DEBUG", "")
 	out = runCmd(t, "Debug", message)
 	assert.NotContains(t, out, colored(message, "cyan"))
 }
