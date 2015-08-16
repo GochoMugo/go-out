@@ -15,30 +15,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPrintMarker(t *testing.T) {
-	print("hello, world", "green")
+func TestprintoutMarker(t *testing.T) {
+	printout(os.Stdout, "hello, world", "green")
 	// Output:  >>> hello, world
 }
 
-func TestPrintArgs(t *testing.T) {
-	print("hello, %s", "red", "world")
+func TestprintoutArgs(t *testing.T) {
+	printout(os.Stdout, "hello, %s", "red", "world")
 	// Output:  >>> hello, world
 }
 
-func TestPrintColorsSubstitution(t *testing.T) {
-	print("hello, [white]world", "green")
+func TestprintoutColorsSubstitution(t *testing.T) {
+	printout(os.Stdout, "hello, [white]world", "green")
 	// Output:  >>> hello, world
 }
 
-func runCmd(t *testing.T, args ...string) string {
+func runCmd(t *testing.T, args ...string) (string, string) {
 	var out bytes.Buffer
+	var stderr bytes.Buffer
 	cmd := exec.Command("go", append([]string{"run", "samples/main.go"}, args...)...)
 	cmd.Stdout = &out
+	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
 		t.Error("errored: ", err)
 	}
-	return out.String()
+	return out.String(), stderr.String()
 }
 
 func colored(message, color string) string {
@@ -48,24 +50,30 @@ func colored(message, color string) string {
 func TestAll(t *testing.T) {
 	message := "hello, world"
 
-	out := runCmd(t, "Success", message)
-	assert.Contains(t, out, colored(message, "green"))
+	stdout, stderr := runCmd(t, "Success", message)
+	assert.Contains(t, stdout, colored(message, "green"))
+	assert.Equal(t, "", stderr)
 
-	out = runCmd(t, "Error", message)
-	assert.Contains(t, out, colored(message, "red"))
+	stdout, stderr = runCmd(t, "Error", message)
+	assert.Equal(t, "", stdout)
+	assert.Contains(t, stderr, colored(message, "red"))
 
-	out = runCmd(t, "Info", message)
-	assert.Contains(t, out, colored(message, "blue"))
+	stdout, stderr = runCmd(t, "Info", message)
+	assert.Contains(t, stdout, colored(message, "blue"))
+	assert.Equal(t, "", stderr)
 
-	out = runCmd(t, "Warn", message)
-	assert.Contains(t, out, colored(message, "yellow"))
+	stdout, stderr = runCmd(t, "Warn", message)
+	assert.Equal(t, "", stdout)
+	assert.Contains(t, stderr, colored(message, "yellow"))
 
 	os.Setenv("DEBUG", "truthy")
-	out = runCmd(t, "Debug", message)
-	assert.Contains(t, out, colored(message, "cyan"))
+	stdout, stderr = runCmd(t, "Debug", message)
+	assert.Equal(t, "", stdout)
+	assert.Contains(t, stderr, colored(message, "cyan"))
 
 	// without DEBUG
 	os.Setenv("DEBUG", "")
-	out = runCmd(t, "Debug", message)
-	assert.NotContains(t, out, colored(message, "cyan"))
+	stdout, stderr = runCmd(t, "Debug", message)
+	assert.Equal(t, "", stdout)
+	assert.Equal(t, "", stderr)
 }

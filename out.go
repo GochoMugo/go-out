@@ -1,5 +1,6 @@
 /*
-Package out provides a simple interface to terminal outputting.
+Package out provides a simple interface to terminal outputting. Suitable for terminal
+applications.
 
 View sample screenshot at https://github.com/GochoMugo/go-out/blob/master/screenshot.png
 
@@ -11,6 +12,7 @@ will have the "[red]" replaced with color red.
 package out
 
 import (
+	"io"
 	"os"
 
 	"github.com/mitchellh/colorstring"
@@ -19,33 +21,33 @@ import (
 const marker = "[magenta] >>> "
 
 // wrap wraps a message with the designated color codes
-func print(message string, colorcode string, args ...interface{}) {
-	colorstring.Printf(marker+"["+colorcode+"]"+message+"\n", args...)
+func printout(out io.Writer, message string, colorcode string, args ...interface{}) {
+	colorstring.Fprintf(out, marker+"["+colorcode+"]"+message+"\n", args...)
 }
 
 // Success outputs a success message
 func Success(message string, args ...interface{}) {
-	print(message, "green", args...)
+	printout(os.Stdout, message, "green", args...)
 }
 
 // Error outputs an error message
 func Error(message string, args ...interface{}) {
-	print(message, "red", args...)
+	printout(os.Stderr, message, "red", args...)
 }
 
 // Warn outputs a warning message
 func Warn(message string, args ...interface{}) {
-	print(message, "yellow", args...)
+	printout(os.Stderr, message, "yellow", args...)
 }
 
 // Info outputs a informatory message
 func Info(message string, args ...interface{}) {
-	print(message, "blue", args...)
+	printout(os.Stdout, message, "blue", args...)
 }
 
 // Debug outputs a debug message if ${DEBUG} is truthy
 func Debug(message string, args ...interface{}) {
 	if os.Getenv("DEBUG") != "" {
-		print(message, "cyan", args...)
+		printout(os.Stderr, message, "cyan", args...)
 	}
 }
