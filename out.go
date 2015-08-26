@@ -21,33 +21,34 @@ import (
 const marker = "[magenta] >>> "
 
 // wrap wraps a message with the designated color codes
-func printout(out io.Writer, message string, colorcode string, args ...interface{}) {
-	colorstring.Fprintf(out, marker+"["+colorcode+"]"+message+"\n", args...)
+func printout(out io.Writer, message string, colorcode string, args ...interface{}) (n int, err error) {
+	return colorstring.Fprintf(out, marker+"["+colorcode+"]"+message+"\n", args...)
 }
 
 // Success outputs a success message
-func Success(message string, args ...interface{}) {
-	printout(os.Stdout, message, "green", args...)
+func Success(message string, args ...interface{}) (n int, err error) {
+	return printout(os.Stdout, message, "green", args...)
 }
 
 // Error outputs an error message
-func Error(message string, args ...interface{}) {
-	printout(os.Stderr, message, "red", args...)
+func Error(message string, args ...interface{}) (n int, err error) {
+	return printout(os.Stderr, message, "red", args...)
 }
 
 // Warn outputs a warning message
-func Warn(message string, args ...interface{}) {
-	printout(os.Stderr, message, "yellow", args...)
+func Warn(message string, args ...interface{}) (n int, err error) {
+	return printout(os.Stderr, message, "yellow", args...)
 }
 
 // Info outputs a informatory message
-func Info(message string, args ...interface{}) {
-	printout(os.Stdout, message, "blue", args...)
+func Info(message string, args ...interface{}) (n int, err error) {
+	return printout(os.Stdout, message, "blue", args...)
 }
 
 // Debug outputs a debug message if ${DEBUG} is truthy
-func Debug(message string, args ...interface{}) {
+func Debug(message string, args ...interface{}) (n int, err error) {
 	if os.Getenv("DEBUG") != "" {
-		printout(os.Stderr, message, "cyan", args...)
+		return printout(os.Stderr, message, "cyan", args...)
 	}
+	return 0, nil
 }
